@@ -1,11 +1,9 @@
-#include "mainwindow.h"
+#include "mainwindow.hpp"
 #include "./ui_mainwindow.h"
+#include "graphicsmanager.hpp"
 
-#include <QLabel>
 #include <QFileDialog>
 #include <QListWidget>
-#include <QMessageBox>
-#include <QKeyEvent>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -14,6 +12,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     this->setWindowTitle("Image Viewer");
 
+    this->defineShortcuts();
+    this->applyConnectors();
 }
 
 MainWindow::~MainWindow()
@@ -21,122 +21,124 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::on_pushButton_clicked()
+void MainWindow::defineShortcuts()
+{
+    /* Zoom keys */
+    this->keyZoomIn = new QShortcut(QKeySequence(Qt::Key_Plus), this);
+    this->keyZoomOut = new QShortcut(QKeySequence(Qt::Key_Minus), this);
+
+    /*Pan keys */
+    this->keyUp = new QShortcut(QKeySequence(Qt::Key_W), this);
+    this->keyRight = new QShortcut(QKeySequence(Qt::Key_D), this);
+    this->keyDown = new QShortcut(QKeySequence(Qt::Key_S), this);
+    this->keyLeft = new QShortcut(QKeySequence(Qt::Key_A), this);
+
+    /* Rotation keys */
+    this->keyRotationRight = new QShortcut(QKeySequence(Qt::Key_R), this);
+    this->keyRotationLeft = new QShortcut(QKeySequence(Qt::Key_E), this);
+
+    /* Brightness keys */
+    this->keyBrightnessUp = new QShortcut(QKeySequence(Qt::Key_Right), this);
+    this->keyBrightnessDown = new QShortcut(QKeySequence(Qt::Key_Left), this);
+}
+
+void MainWindow::applyConnectors()
+{
+    /* Main Window connectors */
+    connect(this->ui->chooseFileButton, &QPushButton::clicked, this, &MainWindow::onChooseFileButtonClicked);
+    connect(this->ui->listWidget, &QListWidget::itemClicked, this, &MainWindow::onListWidgetItemClicked);
+
+    /* Zoom connectors */
+    connect(this->keyZoomIn, SIGNAL(activated()), this, SLOT(applyZoomIn()));
+    connect(this->keyZoomOut, SIGNAL(activated()), this, SLOT(applyZoomOut()));
+
+    /*Pan connectors */
+    connect(this->keyUp, SIGNAL(activated()), this, SLOT(moveLabelUp()));
+    connect(this->keyRight, SIGNAL(activated()), this, SLOT(moveLabelRight()));
+    connect(this->keyDown, SIGNAL(activated()), this, SLOT(moveLabelDown()));
+    connect(this->keyLeft, SIGNAL(activated()), this, SLOT(moveLabelLeft()));
+
+    /* Rotation connectors */
+    connect(this->keyRotationRight, SIGNAL(activated()), this, SLOT(applyRotationRight()));
+    connect(this->keyRotationLeft, SIGNAL(activated()), this, SLOT(applyRotationLeft()));
+
+    /* Brightness connectors */
+    connect(this->keyBrightnessUp, SIGNAL(activated()), this, SLOT(applyBrightnessUp()));
+    connect(this->keyBrightnessDown, SIGNAL(activated()), this, SLOT(applyBrightnessDown()));
+}
+
+void MainWindow::onChooseFileButtonClicked()
 {
     QStringList filenames = QFileDialog::getOpenFileNames(this, tr("Choose a image file"), "../Images/", tr("Image Files (*.bmp *.png *.jpeg)"));
 
     if (!filenames.isEmpty()) {
         for (auto &filename : filenames) {
-            auto rael = ui->listWidget->findItems(filename, Qt::MatchExactly);
+            auto tmp = ui->listWidget->findItems(filename, Qt::MatchExactly);
 
-            if (rael.empty()) {
+            if (tmp.empty()) {
                 ui->listWidget->addItem(filename);
             }
         }
-        this->showImage(ui->listWidget->item(0));
+        this->displayLabel(ui->listWidget->item(0));
     }
 }
 
-
-void MainWindow::on_listWidget_itemClicked(QListWidgetItem *item)
+void MainWindow::onListWidgetItemClicked(QListWidgetItem *item)
 {
-    this->showImage(item);
+    this->displayLabel(item);
 }
 
-void MainWindow::showImage(QListWidgetItem *image)
+void MainWindow::displayLabel(QListWidgetItem *newImage)
 {
-    QPixmap pixmap(QString(image->text()));
-    ui->imageLabel->setPixmap(pixmap);
+    GraphicsManager::changeImageLabel(ui->imageLabel, newImage);
 }
 
-void MainWindow::imageBrightness(QLabel *label, int value)
+void MainWindow::applyZoomIn()
 {
-    QPixmap pixmap = label->pixmap().copy();
-    QImage image = pixmap.toImage();
-
-    for (int i = 0; i < image.width(); i++) {
-        for (int j = 0; j < image.height(); j++) {
-            QRgb pixel = image.pixel(i, j);
-
-            int red = qRed(pixel);
-            int green = qGreen(pixel);
-            int blue = qBlue(pixel);
-
-            red += value;
-            green += value;
-            blue += value;
-
-            red = qBound(0, red + value, 255);
-            green = qBound(0, green + value, 255);
-            blue = qBound(0, blue + value, 255);
-
-            image.setPixel(i, j, qRgb(red, green, blue));
-        }
-    }
-
-    pixmap = QPixmap::fromImage(image);
-    label->setPixmap(pixmap);
+    GraphicsManager::applyZoom(ui->imageLabel, 1.2);
 }
 
-void MainWindow::imageRotate(QLabel *label, int value)
+void MainWindow::applyZoomOut()
 {
-    QPixmap pixmap(label->pixmap().copy());
-    QTransform tr;
-    tr.rotate(value);
-    pixmap = pixmap.transformed(tr);
-    label->setPixmap(pixmap);
+    GraphicsManager::applyZoom(ui->imageLabel, 0.75);
 }
 
-void MainWindow::imageZoom(QLabel *label, double value)
+void MainWindow::moveLabelUp()
 {
-    QPixmap pixmap = label->pixmap();
-    double currentScale = pixmap.devicePixelRatioF();
-    double newScale = value * currentScale;
-
-    int maxLabelWidth = label->maximumWidth();
-    int maxLabelHeight = label->maximumHeight();
-
-    int pixmapWidth = pixmap.width() * newScale;
-    int pixmapHeight = pixmap.height() * newScale;
-
-    if (pixmapWidth > maxLabelWidth || pixmapHeight > maxLabelHeight) {
-        double maxWidthScale = maxLabelWidth / (double)pixmap.width();
-        double maxHeightScale = maxLabelHeight / (double)pixmap.height();
-        double maxScale = qMin(maxWidthScale, maxHeightScale);
-        newScale = qMin(newScale, maxScale);
-    }
-
-    QPixmap newPixmap = pixmap.scaled(pixmap.size() * newScale);
-    label->setPixmap(newPixmap);
+    GraphicsManager::applyPan(ui->imageLabel, 0, -10);
 }
 
-void MainWindow::imagemPan(QLabel *label, int x, int y)
+void MainWindow::moveLabelRight()
 {
-    QPoint currentPos = ui->imageLabel->pos();
-    ui->imageLabel->move(currentPos.x() + x, currentPos.y() + y);
+    GraphicsManager::applyPan(ui->imageLabel, 10, 0);
 }
 
-void MainWindow::keyPressEvent(QKeyEvent *event)
+void MainWindow::moveLabelDown()
 {
-    if (event->key() == Qt::Key_Right) {
-        this->imageBrightness(ui->imageLabel, 5);
-    } else if (event->key() == Qt::Key_Left) {
-        this->imageBrightness(ui->imageLabel, -5);
-    } else if (event->key() == Qt::Key_R) {
-        this->imageRotate(ui->imageLabel, 90);
-    } else if (event->key() == Qt::Key_E) {
-        this->imageRotate(ui->imageLabel, -90);
-    } else if (event->key() == Qt::Key_Plus) {
-        this->imageZoom(ui->imageLabel, 1.2);
-    } else if (event->key() == Qt::Key_Minus) {
-        this->imageZoom(ui->imageLabel, 0.75);
-    } else if (event->key() == Qt::Key_D) {
-        this->imagemPan(ui->imageLabel, -10, 0);
-    } else if (event->key() == Qt::Key_A) {
-        this->imagemPan(ui->imageLabel, 10, 0);
-    } else if (event->key() == Qt::Key_W) {
-        this->imagemPan(ui->imageLabel, 0, 10);
-    } else if (event->key() == Qt::Key_S) {
-        this->imagemPan(ui->imageLabel, 0, -10);
-    }
+    GraphicsManager::applyPan(ui->imageLabel, 0, 10);
+}
+
+void MainWindow::moveLabelLeft()
+{
+    GraphicsManager::applyPan(ui->imageLabel, -10, 0);
+}
+
+void MainWindow::applyRotationRight()
+{
+    GraphicsManager::applyRotation(ui->imageLabel, 90);
+}
+
+void MainWindow::applyRotationLeft()
+{
+    GraphicsManager::applyRotation(ui->imageLabel, -90);
+}
+
+void MainWindow::applyBrightnessUp()
+{
+    GraphicsManager::applyBrightness(ui->imageLabel, 5);
+}
+
+void MainWindow::applyBrightnessDown()
+{
+    GraphicsManager::applyBrightness(ui->imageLabel, -5);
 }
