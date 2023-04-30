@@ -5,6 +5,7 @@
 #include <QFileDialog>
 #include <QListWidget>
 
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -94,55 +95,55 @@ void MainWindow::insertWidgetItem(QStringList filenames)
 
 void MainWindow::displayLabel(QListWidgetItem *item)
 {
-    GraphicsManager::changeImageLabel(ui->imageLabel, item);
+    GraphicsManager::changeImageLabel(ui->label, item);
 }
 
 void MainWindow::applyZoomIn()
 {
-    GraphicsManager::applyZoom(ui->imageLabel, 1.2);
+    GraphicsManager::applyZoom(ui->label, 1.25);
 }
 
 void MainWindow::applyZoomOut()
 {
-    GraphicsManager::applyZoom(ui->imageLabel, 0.75);
+    GraphicsManager::applyZoom(ui->label, 0.75);
 }
 
 void MainWindow::moveLabelUp()
 {
-    GraphicsManager::applyPan(ui->imageLabel, {0, -10});
+    GraphicsManager::applyPan(ui->label, {0, -10});
 }
 
 void MainWindow::moveLabelRight()
 {
-    GraphicsManager::applyPan(ui->imageLabel, {10, 0});
+    GraphicsManager::applyPan(ui->label, {10, 0});
 }
 
 void MainWindow::moveLabelDown()
 {
-    GraphicsManager::applyPan(ui->imageLabel, {0, 10});
+    GraphicsManager::applyPan(ui->label, {0, 10});
 }
 
 void MainWindow::moveLabelLeft()
 {
-    GraphicsManager::applyPan(ui->imageLabel, {-10, 0});
+    GraphicsManager::applyPan(ui->label, {-10, 0});
 }
 
 void MainWindow::applyRotationRight()
 {
-    GraphicsManager::applyRotation(ui->imageLabel, 90);
+    GraphicsManager::applyRotation(ui->label, 90);
 }
 
 void MainWindow::applyRotationLeft()
 {
-    GraphicsManager::applyRotation(ui->imageLabel, -90);
+    GraphicsManager::applyRotation(ui->label, -90);
 }
 
 void MainWindow::applyBrightnessUp()
 {
-    GraphicsManager::applyBrightness(ui->imageLabel, 5);
+    GraphicsManager::applyBrightness(ui->label, 3);
 }
 
 void MainWindow::applyBrightnessDown()
 {
-    GraphicsManager::applyBrightness(ui->imageLabel, -5);
+    GraphicsManager::applyBrightness(ui->label, -3);
 }

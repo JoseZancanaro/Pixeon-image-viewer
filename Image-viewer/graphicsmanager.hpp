@@ -4,6 +4,7 @@
 #include <QListWidgetItem>
 #include <QLabel>
 
+
 namespace GraphicsManager {
 
 void changeImageLabel(QLabel *label, QListWidgetItem *item)
@@ -16,33 +17,17 @@ void changeImageLabel(QLabel *label, QListWidgetItem *item)
 
 void applyZoom(QLabel *label, double value)
 {
-    QPixmap pixmap = label->pixmap();
-    double currentScale = pixmap.devicePixelRatioF();
-    double newScale = value * currentScale;
+    QPixmap pixmap = label->pixmap().copy();
+    double scaleWidth = pixmap.width() * value;
+    double scaleHeight = pixmap.height() * value;
 
-    int maxLabelWidth = label->maximumWidth();
-    int maxLabelHeight = label->maximumHeight();
-
-    int pixmapWidth = pixmap.width() * newScale;
-    int pixmapHeight = pixmap.height() * newScale;
-
-    if (pixmapWidth > maxLabelWidth || pixmapHeight > maxLabelHeight) {
-        double maxWidthScale = maxLabelWidth / (double)pixmap.width();
-        double maxHeightScale = maxLabelHeight / (double)pixmap.height();
-        double maxScale = qMin(maxWidthScale, maxHeightScale);
-        newScale = qMin(newScale, maxScale);
-    }
-
-    QPixmap newPixmap = pixmap.scaled(pixmap.size() * newScale);
-    label->setPixmap(newPixmap);
+    pixmap = pixmap.scaled(scaleWidth, scaleHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    label->setPixmap(pixmap);
 }
 
-void applyPan(QLabel *label, std::pair<int, int> shift)
+void applyPan(QLabel *label, QPoint shift)
 {
-    QPoint currentPos = label->pos();
-    auto [x, y] = shift;
-
-    label->move(currentPos.x() + x, currentPos.y() + y);
+    label->move(label->pos().x() + shift.x(), label->pos().y() + shift.y());
 }
 
 void applyRotation(QLabel *label, int angle)
@@ -61,25 +46,21 @@ void applyBrightness(QLabel *label, int value)
     for (int i = 0; i < image.width(); i++) {
         for (int j = 0; j < image.height(); j++) {
             QRgb pixel = image.pixel(i, j);
+            QColor color(pixel);
 
-            int red = qRed(pixel);
-            int green = qGreen(pixel);
-            int blue = qBlue(pixel);
+            int newRed = qBound(0, color.red() + value, 255);
+            int newGreen = qBound(0, color.green() + value, 255);
+            int newBlue = qBound(0, color.blue() + value, 255);
 
-            red += value;
-            green += value;
-            blue += value;
+            color.setRed(newRed);
+            color.setGreen(newGreen);
+            color.setBlue(newBlue);
 
-            red = qBound(0, red + value, 255);
-            green = qBound(0, green + value, 255);
-            blue = qBound(0, blue + value, 255);
-
-            image.setPixel(i, j, qRgb(red, green, blue));
+            image.setPixel(i, j, color.rgb());
         }
     }
 
-    pixmap = QPixmap::fromImage(image);
-    label->setPixmap(pixmap);
+    label->setPixmap(QPixmap::fromImage(image));
 }
 
 }
