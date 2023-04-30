@@ -70,17 +70,7 @@ void MainWindow::applyConnectors()
 void MainWindow::onChooseFileButtonClicked()
 {
     QStringList filenames = QFileDialog::getOpenFileNames(this, tr("Choose a image file"), "../Images/", tr("Image Files (*.bmp *.png *.jpeg)"));
-
-    if (!filenames.isEmpty()) {
-        for (auto &filename : filenames) {
-            auto tmp = ui->listWidget->findItems(filename, Qt::MatchExactly);
-
-            if (tmp.empty()) {
-                ui->listWidget->addItem(filename);
-            }
-        }
-        this->displayLabel(ui->listWidget->item(0));
-    }
+    this->insertWidgetItem(filenames);
 }
 
 void MainWindow::onListWidgetItemClicked(QListWidgetItem *item)
@@ -88,9 +78,23 @@ void MainWindow::onListWidgetItemClicked(QListWidgetItem *item)
     this->displayLabel(item);
 }
 
-void MainWindow::displayLabel(QListWidgetItem *newImage)
+void MainWindow::insertWidgetItem(QStringList filenames)
 {
-    GraphicsManager::changeImageLabel(ui->imageLabel, newImage);
+    if (!filenames.isEmpty()) {
+        for (auto &filename : filenames) {
+            if (ui->listWidget->findItems(filename, Qt::MatchExactly).empty()) {
+                ui->listWidget->addItem(filename);
+            }
+
+        /* Always display the first item */
+        this->displayLabel(ui->listWidget->item(0));
+        }
+    }
+}
+
+void MainWindow::displayLabel(QListWidgetItem *item)
+{
+    GraphicsManager::changeImageLabel(ui->imageLabel, item);
 }
 
 void MainWindow::applyZoomIn()
@@ -105,22 +109,22 @@ void MainWindow::applyZoomOut()
 
 void MainWindow::moveLabelUp()
 {
-    GraphicsManager::applyPan(ui->imageLabel, 0, -10);
+    GraphicsManager::applyPan(ui->imageLabel, {0, -10});
 }
 
 void MainWindow::moveLabelRight()
 {
-    GraphicsManager::applyPan(ui->imageLabel, 10, 0);
+    GraphicsManager::applyPan(ui->imageLabel, {10, 0});
 }
 
 void MainWindow::moveLabelDown()
 {
-    GraphicsManager::applyPan(ui->imageLabel, 0, 10);
+    GraphicsManager::applyPan(ui->imageLabel, {0, 10});
 }
 
 void MainWindow::moveLabelLeft()
 {
-    GraphicsManager::applyPan(ui->imageLabel, -10, 0);
+    GraphicsManager::applyPan(ui->imageLabel, {-10, 0});
 }
 
 void MainWindow::applyRotationRight()

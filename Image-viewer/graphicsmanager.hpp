@@ -6,10 +6,12 @@
 
 namespace GraphicsManager {
 
-void changeImageLabel(QLabel *label, QListWidgetItem *newImage)
+void changeImageLabel(QLabel *label, QListWidgetItem *item)
 {
-    QPixmap pixmap(QString(newImage->text()));
-    label->setPixmap(pixmap);
+    QString filename = item->text();
+
+    QPixmap newImage(filename);
+    label->setPixmap(newImage);
 }
 
 void applyZoom(QLabel *label, double value)
@@ -35,18 +37,19 @@ void applyZoom(QLabel *label, double value)
     label->setPixmap(newPixmap);
 }
 
-void applyPan(QLabel *label, int x, int y)
+void applyPan(QLabel *label, std::pair<int, int> shift)
 {
     QPoint currentPos = label->pos();
+    auto [x, y] = shift;
+
     label->move(currentPos.x() + x, currentPos.y() + y);
 }
 
-void applyRotation(QLabel *label, int value)
+void applyRotation(QLabel *label, int angle)
 {
-    QPixmap pixmap(label->pixmap().copy());
-    QTransform tr;
-    tr.rotate(value);
-    pixmap = pixmap.transformed(tr);
+    QPixmap pixmap = label->pixmap().copy();
+
+    pixmap = pixmap.transformed(QTransform().rotate(angle), Qt::SmoothTransformation);
     label->setPixmap(pixmap);
 }
 

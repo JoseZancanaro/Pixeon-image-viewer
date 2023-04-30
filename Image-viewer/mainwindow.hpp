@@ -40,8 +40,9 @@ private slots:
 private:
     Ui::MainWindow *ui;
 
-    /* label control */
-    void displayLabel(QListWidgetItem *newImage);
+    /* Main Window control */
+    void displayLabel(QListWidgetItem *item);
+    void insertWidgetItem(QStringList filenames);
 
     /* Zoom keys */
     QShortcut *keyZoomIn;
