@@ -1,12 +1,12 @@
 ﻿# Pixeon-image-viewer
 
-[Portuguese](./README-en.md)
+[Portuguese](./README.md)
 
 ## About this repository
-This project consisted of solving the challenge for Pixeon's C++ Developer Analyst position. It was required to develop, in the C++ programming language and in the QT environment, an image viewer application. With image selection, visualization and transformations, such as: zoom, displacement, rotation and brightness.
+This project consisted of solving the challenge for Pixeon's C++ Developer Analyst position. It was required to develop, in the C++ programming language and in the Qt environment, an image viewer application. With image selection, visualization and transformations, such as: zoom, displacement, rotation and brightness.
 
 **/Image-viewer/** contains the .cpp, .hpp, .ui and cmake files for this project,
-**/Images/** contains three image files .bmp, .jpeg and .png, for testing this project.
+**/Images/** contains three image files .bmp, .jpeg and .png for testing this project.
 
 Also, the repository contains two branches, **dev** which presents the entire code implementation history, and **main** which contains the latest current version of this project.
 
@@ -41,6 +41,8 @@ For this image viewer project, and mainly for image transformation applications,
 * **zoom**: established limits for zooming. Zoom out intensively consumes a lot of application memory.
 * **moving (pan)**: The application is currently not maintaining the new position of the image. Application performs the displacement, but does not save the position in case another transformation is called.
 * **brightness**: set limits for brightness intensity. So if you get the level too high/low, won't lose the original image content.
+
+Also, during the development of this project, it was preferred to take advantage of algorithms and classes from the Qt environment itself. It would be interesting, for future improvements, to change the developed algorithms to a way to comply with the Standard Template Library (STL).
 
 ## Result
 The project image viewer with C++ and with Qt environment was a curious and challenging experience.

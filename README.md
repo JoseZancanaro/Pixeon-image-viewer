@@ -3,7 +3,7 @@
 [Inglês](./README-en.md)
 
 ## Sobre este repositório
-Este projeto consistiu no desafio para a vaga de Analista Desenvolvedor C++ da Pixeon. Foi requerido desenvolver na linguagem de programação C++ e no ambiente QT, uma aplicação que compreendia em um visualizador de imagens. Com seleção, visualização e transformações de imagens, como: zoom, deslocamento, rotação e brilho.
+Este projeto consistiu no desafio para a vaga de Analista Desenvolvedor C++ da Pixeon. Foi requerido desenvolver na linguagem de programação C++ e no ambiente Qt, uma aplicação que compreendia em um visualizador de imagens. Com seleção, visualização e transformações de imagens, como: zoom, deslocamento, rotação e brilho.
 
 **/Image-viewer/** contém os arquivos .cpp, .hpp, .ui e cmake deste projeto,
 **/Images/** contém três arquivos de imagens .bmp .jpeg e .png para testes deste projeto.
@@ -42,6 +42,8 @@ Para este projeto de visualizador de imagens, e principalmente para as aplicaç�
 * **zoom**: limites estabelecidos para ampliação. Aplicar menos zoom intensamente, consome muita memória da aplicação.
 * **deslocamento**: no momento, a aplicação não está mantendo a nova posição da imagem. Aplicação realiza o deslocamento, mas não guarda a posição caso outra transformação seja chamada.
 * **brilho**: limites estabelecidos para intensidade de brilho. Assim, se chegar ao nível muito alto/baixo, não perderá o conteúdo da imagem original.
+
+Ainda, durante o desenvolvimento deste projeto, preferiu-se usufruir de algoritmos e classes do próprio ambiente do Qt. Seria interessante, para melhorias futuras, mudar os algoritmos desenvolvidos para uma forma a atender ao *Standard Template Library* (STL). 
 
 ## Resultado
 O projeto do visualizador de imagens em C++ com o ambiente Qt foi uma experiência curiosa e desafiadora.
